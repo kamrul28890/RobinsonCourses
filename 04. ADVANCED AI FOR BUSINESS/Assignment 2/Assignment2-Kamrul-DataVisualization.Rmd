@@ -1,0 +1,134 @@
+---
+title: "Assignment 2 - Top Trends in Data Visualization on GitHub"
+author: "MD Kamruzzaman Kamrul"
+date: "11/1/2023"
+output: html_document
+---
+
+# 1. Introduction 
+
+## 1.1 Data Source
+
+Data Visualization Topic on GitHub: https://github.com/topics/data-visualization
+
+This project aims to visualize data about data visualization repositories on GitHub. The project uses the GitHub API to fetch the repository data for the topic "data-visualization". The repository data is then extracted and used to create two visualizations:
+
+A bar plot of the top 5 co-occurring topics with data visualization
+A line plot showing the number of repositories created each year over time
+The bar plot shows that the top 5 co-occurring topics with data visualization are:
+
+machine learning
+python
+javascript
+data science
+visualization
+The line plot shows that the number of repositories created each year for data visualization has been steadily increasing over time.
+
+The project demonstrates how to use the GitHub API to fetch data and how to visualize data using ggplot2. The project code is well-written, easy to read, and well-commented.
+
+# 2. Setup
+
+## 2.1 Libraries
+
+```{r setup, include=FALSE}
+# Installing and loading packages
+packages <- c("repurrrsive", "tidyverse", "gh", "ggplot2", "kableExtra")
+
+new_packages <- packages[!(packages %in% installed.packages()[,"Package"])]
+if(length(new_packages)) install.packages(new_packages)
+
+library(repurrrsive)
+library(tidyverse)
+library(gh)
+library(ggplot2)
+library(kableExtra)
+
+```
+
+
+#2.2 GitHub API Setup
+```{r}
+# Setting up the GitHub Token
+Sys.setenv(GITHUB_TOKEN = "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")
+
+# Getting repository data from Github API for Data Visualization Topic
+topic <- "data-visualization"
+params <- list(q = paste0("topic:", topic))
+repos <- gh('/search/repositories', .limit = 100, .params = params)
+
+```
+
+# 3. Data Extraction
+```{r}
+# Extracting repository data
+repository_data <- map_df(repos$items, function(x) {
+  tibble(
+    full_name = x$full_name,
+    created_year = format(as.Date(x$created_at),"%Y"),
+    size = x$size,
+    language = x$language,
+    topics = paste(x$topics, collapse = ", ")
+  )
+})
+
+# Displaying the top 10 repositories
+kbl(head(repository_data,10)) %>%
+  kable_paper(bootstrap_options = "striped", full_width = F, position = "center")
+
+```
+
+
+# 4. Data Visualization 
+
+## 4.1 Top 5 Co-Occurred Topics with Data Visualization 
+
+```{r}
+topics_list <- strsplit(repository_data$topics, ", ")
+topics_vector <- unlist(topics_list)
+topics_freq <- table(topics_vector)
+
+top5_topics <- head(sort(topics_freq, decreasing = TRUE), 5)
+
+# Convert top5_topics to a tibble and name columns
+top5_df <- as_tibble(enframe(top5_topics, name = "Topic", value = "Frequency"))
+
+# Ensure Frequency is treated as numeric
+top5_df$Frequency <- as.numeric(top5_df$Frequency)
+
+ggplot(top5_df, aes(x = reorder(Topic, Frequency), y = Frequency, fill = Topic)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Top 5 Co-Occurred Topics with Data Visualization") +
+  labs(x="Topic Name", y="Frequency") +
+  theme_minimal() +
+  coord_flip() +  
+  theme(legend.position="none")
+
+```
+
+
+##4.2 Yearly repository count for Data Visualization
+
+```{r}
+yearly_repo_count <- table(repository_data$created_year)
+
+# Convert to data frame for ggplot
+yearly_repo_df <- as.data.frame(yearly_repo_count)
+colnames(yearly_repo_df) <- c("Year", "Count")
+
+# Convert the Year to a factor with the correct levels
+yearly_repo_df$Year <- factor(yearly_repo_df$Year, levels = unique(yearly_repo_df$Year))
+
+ggplot(yearly_repo_df, aes(x = Year, y = Count)) + 
+  geom_line(color = "blue", linewidth = 1, group = 1) +  # The group = 1 ensures the line connects the points
+  geom_point(color = "red", linewidth = 3, shape = 21, fill = "yellow") +  # Colorful points
+  ggtitle("Yearly Repository Count for Data Visualization") +
+  labs(x="Year", y="Count of Repositories") +
+  theme_bw() +  # White background
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Centered, bold title
+    axis.title = element_text(size = 14, face = "bold"),  # Bold axis labels
+    axis.text = element_text(size = 12)
+  ) 
+
+```
