@@ -1,0 +1,17 @@
+Assignment#1: 
+Programming Exercises of the Book:
+
+Chapter01: 11, 18, 21
+Chapter02: 5, 6, 7, 14, 17, 18, 21, 22, 25
+Chapter03: 3, 6, 9, 11, 12, 16, 19
+Chapter04: 3, 4, 5, 15, 17, 21, 24, 29, 39
+Chapter05: 9, 11, 16, 19, 26, 30, 35, 36, 53, 54, 55
+Chapter06: 2, 3, 5, 10, 18, 24, 29, 41
+Chapter07: 3, 5, 7, 9, 10
+
+
+
+
+
+
+
