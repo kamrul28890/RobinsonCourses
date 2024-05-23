@@ -49,7 +49,7 @@ library(kableExtra)
 #2.2 GitHub API Setup
 ```{r}
 # Setting up the GitHub Token
-Sys.setenv(GITHUB_TOKEN = "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")
+Sys.setenv(GITHUB_TOKEN = "your_github_token")
 
 # Getting repository data from Github API for Data Visualization Topic
 topic <- "data-visualization"
